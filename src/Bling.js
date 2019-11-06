@@ -370,15 +370,6 @@ class Bling extends Component {
     static clear(slots) {
         Bling._adManager.clear(slots);
     }
-    /**
-     * Updates the correlator value for the next ad request.
-     *
-     * @method updateCorrelator
-     * @static
-     */
-    static updateCorrelator() {
-        Bling._adManager.updateCorrelator();
-    }
 
     static set testManager(testManager) {
         invariant(testManager, "Pass in createManagerTest to mock GPT");
@@ -726,12 +717,6 @@ class Bling extends Component {
         if (content) {
             Bling._adManager.googletag.content().setContent(adSlot, content);
         } else {
-            if (
-                !Bling._adManager._disableInitialLoad &&
-                !Bling._adManager._syncCorrelator
-            ) {
-                Bling._adManager.updateCorrelator();
-            }
             Bling._adManager.googletag.display(divId);
             if (
                 Bling._adManager._disableInitialLoad &&
