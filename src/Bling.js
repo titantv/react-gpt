@@ -30,6 +30,12 @@ class Bling extends Component {
          */
         id: PropTypes.string,
         /**
+         * An optional string to be used as prefix to element id.
+         *
+         * @property idName
+         */
+        idName: PropTypes.string,
+        /**
          * An optional string to be used as container div class.
          *
          * @property className
@@ -750,7 +756,7 @@ class Bling extends Component {
 
     render() {
         const {scriptLoaded} = this.state;
-        const {id, className, outOfPage, style} = this.props;
+        const {id, idName, className, outOfPage, style} = this.props;
         const shouldNotRender = this.notInViewport(this.props, this.state);
 
         if (!scriptLoaded || shouldNotRender) {
@@ -787,7 +793,7 @@ class Bling extends Component {
             Bling._adManager.googletag.destroySlots([this._adSlot]);
             this._adSlot = null;
         }
-        this._divId = id || Bling._adManager.generateDivId();
+        this._divId = id || Bling._adManager.generateDivId(idName);
 
         return <div className={className} id={this._divId} style={style} />;
     }

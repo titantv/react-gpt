@@ -222,8 +222,8 @@ export class AdManager extends EventEmitter {
         this._syncCorrelator = value;
     }
 
-    generateDivId() {
-        return `bling-${++this._adCnt}`;
+    generateDivId(idName = "bling") {
+        return `${idName}-${++this._adCnt}`;
     }
 
     getMountedInstances() {
