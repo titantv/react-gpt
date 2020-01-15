@@ -30,6 +30,18 @@ class Bling extends Component {
          */
         id: PropTypes.string,
         /**
+         * An optional string to be used as prefix to element id.
+         *
+         * @property idName
+         */
+        idName: PropTypes.string,
+        /**
+         * An optional string to be used as container div class.
+         *
+         * @property className
+         */
+        className: PropTypes.string,
+        /**
          * An optional string indicating ad unit path which will be used
          * to create an ad slot.
          *
@@ -191,7 +203,17 @@ class Bling extends Component {
          *
          * @property style
          */
-        style: PropTypes.object
+        style: PropTypes.object,
+        /**
+         * An optional property to control non-personalized Ads.
+         * https://support.google.com/admanager/answer/7678538
+         *
+         * Set to `true` to mark the ad request as NPA, and to `false` for ad requests that are eligible for personalized ads
+         * It is `false` by default, according to Google's definition.
+         *
+         * @property npa
+         */
+        npa: PropTypes.bool
     };
 
     /**
@@ -217,7 +239,13 @@ class Bling extends Component {
      * @property reRenderProps
      * @static
      */
-    static reRenderProps = ["adUnitPath", "slotSize", "outOfPage", "content"];
+    static reRenderProps = [
+        "adUnitPath",
+        "slotSize",
+        "outOfPage",
+        "content",
+        "npa"
+    ];
     /**
      * An instance of ad manager.
      *
@@ -348,15 +376,6 @@ class Bling extends Component {
     static clear(slots) {
         Bling._adManager.clear(slots);
     }
-    /**
-     * Updates the correlator value for the next ad request.
-     *
-     * @method updateCorrelator
-     * @static
-     */
-    static updateCorrelator() {
-        Bling._adManager.updateCorrelator();
-    }
 
     static set testManager(testManager) {
         invariant(testManager, "Pass in createManagerTest to mock GPT");
@@ -387,8 +406,9 @@ class Bling extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {propsEqual} = Bling._config;
-        const {sizeMapping} = this.props;
+        const { propsEqual } = Bling._config;
+        const { sizeMapping } = this.props;
+
         if (
             (nextProps.sizeMapping || sizeMapping) &&
             !propsEqual(nextProps.sizeMapping, sizeMapping)
@@ -603,9 +623,11 @@ class Bling extends Component {
     }
 
     defineSlot() {
-        const {adUnitPath, outOfPage} = this.props;
+        const {adUnitPath, outOfPage, npa} = this.props;
         const divId = this._divId;
         const slotSize = this.getSlotSize();
+
+        this.handleSetNpaFlag(npa);
 
         if (!this._adSlot) {
             if (outOfPage) {
@@ -701,12 +723,6 @@ class Bling extends Component {
         if (content) {
             Bling._adManager.googletag.content().setContent(adSlot, content);
         } else {
-            if (
-                !Bling._adManager._disableInitialLoad &&
-                !Bling._adManager._syncCorrelator
-            ) {
-                Bling._adManager.updateCorrelator();
-            }
             Bling._adManager.googletag.display(divId);
             if (
                 Bling._adManager._disableInitialLoad &&
@@ -740,7 +756,7 @@ class Bling extends Component {
 
     render() {
         const {scriptLoaded} = this.state;
-        const {id, outOfPage, style} = this.props;
+        const {id, idName, className, outOfPage, style} = this.props;
         const shouldNotRender = this.notInViewport(this.props, this.state);
 
         if (!scriptLoaded || shouldNotRender) {
@@ -777,9 +793,27 @@ class Bling extends Component {
             Bling._adManager.googletag.destroySlots([this._adSlot]);
             this._adSlot = null;
         }
-        this._divId = id || Bling._adManager.generateDivId();
+        this._divId = id || Bling._adManager.generateDivId(idName);
 
-        return <div id={this._divId} style={style} />;
+        return <div className={className} id={this._divId} style={style} />;
+    }
+
+    /**
+     * Call pubads and set the non-personalized Ads flag, if it is not undefined.
+     *
+     * @param {boolean} npa
+     */
+    handleSetNpaFlag(npa) {
+        if (npa === undefined) {
+            return;
+        }
+
+        Bling._adManager.pubadsProxy({
+            method: "setRequestNonPersonalizedAds",
+            args: [npa ? 1 : 0],
+            resolve: null,
+            reject: null
+        });
     }
 }
 
