@@ -61,6 +61,7 @@ class App extends Component {
                 </Button>
                 <div style={styles.lb}>
                     <Gpt
+                        className="test-class"
                         adUnitPath={adUnitPath}
                         slotSize={[728, 90]}
                         style={styles.adBorder}
