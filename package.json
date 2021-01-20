@@ -12,7 +12,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Ticketmaster/react-gpt"
+        "url": "https://github.com/titantv/react-gpt"
     },
     "keywords": [
         "react-gpt",
@@ -23,7 +23,7 @@
         "google publisher tags"
     ],
     "bugs": {
-        "url": "https://github.com/nfl/react-gpt/issues"
+        "url": "https://github.com/titantv/react-gpt/issues"
     },
     "files": [
         "*.md",
